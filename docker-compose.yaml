@@ -1,0 +1,105 @@
+version: "3.8"
+services:
+  # Cleanup any output from last run
+  cleanup-output:
+    image: busybox
+    volumes:
+      - ./output:/output
+    command: "sh -c 'rm -rf /output/* || true'" 
+  
+  # Step 1: Deconstruct mzML to XML and binary parts
+  deconstruct:
+    image: chrisagrams/mzml-construct:latest
+    volumes: 
+      - ./input:/input
+      - ./output:/output
+    command: "python -u deconstruct.py /input/test.mzML /output/"
+
+  # Step 2: Run MSFragger on original mzML
+  search-A:
+    image: chrisagrams/msfragger:UP000005640
+    volumes:
+      - ./input:/input
+      - ./output:/output
+    command: "/input/test.mzML /output"
+
+  # Step 2 (1/2): Unzip the results created by MSFragger Docker conatiner
+  unzip-search-A:
+    image: tonybogdanov/zip
+    depends_on:
+      search-A:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "unzip /input/test.zip -d /output"
+  
+  # Step 3: Transform (encode) the binary
+  transform-encode:
+    build: 
+      context: ./transform
+    depends_on:
+      deconstruct:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "python -u main.py /input/test.bin /output/transformed.npy --mode=encode"
+
+  # Step 4: Transform (decode) the binary
+  transform-decode:
+    build: 
+      context: ./transform
+    depends_on:
+      transform-encode:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "python -u main.py /input/transformed.npy /output/new.bin --mode=decode"
+
+  # Step 5: Reconstruct the mzML with transformed binary.
+  construct:
+    image: chrisagrams/mzml-construct:latest
+    depends_on:
+      transform-decode:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "python -u construct.py /input/test.xml /input/new.bin /output/new.mzML"
+
+  # Step 6: Run MSFragger on transfromed mzML
+  search-B:
+    image: chrisagrams/msfragger:UP000005640
+    depends_on:
+      construct:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "/input/new.mzML /output"
+
+  # Step 6 (1/2): Unzip the results created by MSFragger Docker conatiner
+  unzip-search-B:
+    image: tonybogdanov/zip
+    depends_on:
+      search-B:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "unzip /input/new.zip -d /output"
+
+  # Step 7: Compare the search results
+  compare:
+    image: chrisagrams/pin-compare:latest
+    depends_on:
+      unzip-search-A:
+        condition: service_completed_successfully
+      unzip-search-B:
+        condition: service_completed_successfully
+    volumes:
+      - ./output:/input
+      - ./output:/output
+    command: "/input/test.pin /input/new.pin /output/"
