@@ -1,5 +1,13 @@
 version: "3.8"
 services:
+  # Download test file (if not exists)
+  download:
+    image: alpine/curl
+    volumes:
+      - ./input:/input
+    entrypoint: ["/bin/sh", "-c", "/input/download.sh"]
+
+
   # Cleanup any output from last run
   cleanup-output:
     image: busybox
@@ -10,6 +18,9 @@ services:
   # Step 1: Deconstruct mzML to XML and binary parts
   deconstruct:
     image: chrisagrams/mzml-construct:latest
+    depends_on:
+      download:
+        condition: service_completed_successfully
     volumes: 
       - ./input:/input
       - ./output:/output
@@ -18,6 +29,9 @@ services:
   # Step 2: Run MSFragger on original mzML
   search-A:
     image: chrisagrams/msfragger:UP000005640
+    depends_on:
+      download:
+        condition: service_completed_successfully
     volumes:
       - ./input:/input
       - ./output:/output
