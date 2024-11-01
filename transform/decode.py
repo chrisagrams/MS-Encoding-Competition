@@ -3,8 +3,9 @@ import numpy as np
 
 
 def decode_log_transform(df):
-    # Apply the exponential to reverse the log transform, then subtract 1
-    df['int'] = df['int'].apply(lambda x: np.expm1(x).astype(np.float64))
+    # Apply the exponential to reverse the log transform, divide by scale factor to reverse scaling, then subtract 1
+    scale_factor = 72.0
+    df['int'] = df['int'].apply(lambda x: (np.exp2(x / scale_factor) - 1).astype(np.float64))
     return df
 
 
