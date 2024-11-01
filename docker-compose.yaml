@@ -7,7 +7,6 @@ services:
       - ./input:/input
     entrypoint: ["/bin/sh", "-c", "/input/download.sh"]
 
-
   # Cleanup any output from last run
   cleanup-output:
     image: busybox
