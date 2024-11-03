@@ -1,5 +1,15 @@
 .venv/
 .idea/
 input/*.mzML
-output/*
+output/*.bin
+output/*.mzML
+output/*.pepXML
+output/*.pin
+output/*.zip
+output/*.parquet
+output/*.tsv
+output/*.xml
+output/*.npy
+output/*.png
+output/*.csv
 .DS_Store

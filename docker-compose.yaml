@@ -7,12 +7,12 @@ services:
       - ./input:/input
     entrypoint: ["/bin/sh", "-c", "/input/download.sh"]
 
-  # Cleanup any output from last run
+  # Cleanup any output from last run (except previous search results and search.sh entrypoint)
   cleanup-output:
     image: busybox
     volumes:
       - ./output:/output
-    command: "sh -c 'rm -rf /output/* || true'" 
+    command: "sh -c 'find /output -type f ! -name test.zip ! -name search.sh -exec rm -f {} +'"
   
   # Step 1: Deconstruct mzML to XML and binary parts
   deconstruct:
@@ -34,6 +34,7 @@ services:
     volumes:
       - ./input:/input
       - ./output:/output
+    entrypoint: ["/output/search.sh"] # Use new entrypoint to skip first search if it already exists
     command: "/input/test.mzML /output"
 
   # Step 2 (1/2): Unzip the results created by MSFragger Docker conatiner
@@ -106,7 +107,7 @@ services:
 
   # Step 7: Compare the search results
   compare:
-    image: chrisagrams/pin-compare:latest
+    image: chrisagrams/pats-compare:latest
     depends_on:
       unzip-search-A:
         condition: service_completed_successfully
