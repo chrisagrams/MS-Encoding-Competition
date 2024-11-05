@@ -12,4 +12,7 @@ output/*.xml
 output/*.npy
 output/*.png
 output/*.csv
+results/*.csv
+results/*.png
+results/*.zip
 .DS_Store

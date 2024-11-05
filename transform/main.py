@@ -2,7 +2,6 @@ import argparse
 
 import numpy as np
 import pandas as pd
-from utils.file_utils import import_from_binary, export_df_to_binary
 from encode import encoder
 from decode import decoder
 
@@ -23,13 +22,12 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
     if args.mode == 'encode':
-        df = import_from_binary(args.input_file)
+        df = pd.DataFrame(np.load(args.input_file, allow_pickle=True), columns=["mz", "int", "ms_level", "retention_time"])
         encoded_df = encoder(df)
         np.save(args.output_file, encoded_df)
     if args.mode == 'decode':
         np_data = np.load(args.input_file, allow_pickle=True)
-        df = pd.DataFrame(np_data, columns=['mz', 'int'])
+        df = pd.DataFrame(np_data, columns=['mz', 'int', 'ms_level', 'retention_time'])
         decoded_df = decoder(df)
-        export_df_to_binary(decoded_df, args.output_file)
-
+        np.save(args.output_file, df)
         

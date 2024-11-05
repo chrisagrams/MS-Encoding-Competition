@@ -1,4 +1,5 @@
 #!/bin/sh
+# Do not remove this file!
 
 TARGET_FILE="/input/test.mzML"
 DOWNLOAD_URL="https://uofi.box.com/shared/static/74pf1i9wug1hz9xmsnjlvrcr3wkx1nn8?dl=1"

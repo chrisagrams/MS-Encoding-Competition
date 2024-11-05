@@ -6,6 +6,4 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY utils /app/utils
-
 COPY *.py /app
