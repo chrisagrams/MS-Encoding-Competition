@@ -21,6 +21,7 @@ Below is a high level overview of the steps found in the pipeline:
     - When you first clone this repository, you'll find an initial encoding implementation in `encode.py` in the `encode_log_transform` function. This function simply performs a $log_2$ transformation on the intensity values.
 - Step 4: **Decode the binary**
     - Utilizing the built `transform` container, the encoded binary from Step 3 is decoded and exported to `new.npy` utilizing the decode function you provide in `transform/decode.py`. The decoded binary is written to `output/new.npy`
+    - The `decoder` function within `decode.py` is provided with the Pandas DataFrame you returned from `encoder` function in Step 3. Perform transformations on the `mz` and `int` columns and return a DataFrame similarly to Step 3.
     - When you first clone this repository, you'll find an initial decoding implementation in `decode.py` that reverses the $log_2$ transformation performed in `encode.py` by applying $2^x$ inside the `decode_log_transform` function.
 - Step 5: Reconstruct the mzML file.
     - Here, we reconstruct the mzML file using the transformed binary (after encoding and decoding) utilizing the same implementation as found in Step 1. The transformed mzML file is located under `output/new.mzML`
