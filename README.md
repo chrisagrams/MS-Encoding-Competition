@@ -4,7 +4,7 @@ A competition set out to determine the best encoding/decoding methods for mass s
 
 ## Introduction
 
-## Walkthrough
+## Overview
 Provided in this repository is a pipeline to easily allow you to test how a given encoding/decoding strategy affects the search results of an mzML file. Your code should only be contained within the `transform` directory under `encode.py` and `decode.py`. Feel free to utilize any Python libraries found on pip, but make sure to update the `requirements.txt` accordingly (if you choose to do so).
 
 Below is a high level overview of the steps found in the pipeline:
@@ -16,8 +16,12 @@ Below is a high level overview of the steps found in the pipeline:
     - To establish the baseline, we run a MSFragger search using default parameters on the `test.mzML` file. The result files are compressed and stored within `output/test.zip`. Note, this step will not re-run if `test.zip` is present inside of the output directory (as running the search on the original mzML file for each iteration is redundant).
 - Step 3: **Encode the binary**
     - The code inside of `transform` is built into a Docker container and ran utilizing the extracted binary from Step 1. The encoding function you provide inside of `transform/encode.py` is executed, and results are exported to `output/transformed.npy`.
+    - The `encoder` function within `encode.py` is provided with a Pandas DataFrame with the following columns: `mz` (m/z), `int` (intensity), `ms_level`, and `retention_time`. Each row represents a mass spectrum with index equaling the index of the original mzML file. The `mz` and `int` columns contain an array representing the full binary of that spectrum. **Only perform transformations on the `mz` and `int` columns.**
+    - The `encoder` function returns a Pandas DataFrame that will be exported to file. Any NumPy data type can be stored within the cells for `mz` and `int` columns. **Ensure your transformations are applied to the returned DataFrame.**
+    - When you first clone this repository, you'll find an initial encoding implementation in `encode.py` in the `encode_log_transform` function. This function simply performs a $log_2$ transformation on the intensity values.
 - Step 4: **Decode the binary**
     - Utilizing the built `transform` container, the encoded binary from Step 3 is decoded and exported to `new.npy` utilizing the decode function you provide in `transform/decode.py`. The decoded binary is written to `output/new.npy`
+    - When you first clone this repository, you'll find an initial decoding implementation in `decode.py` that reverses the $log_2$ transformation performed in `encode.py` by applying $2^x$ inside the `decode_log_transform` function.
 - Step 5: Reconstruct the mzML file.
     - Here, we reconstruct the mzML file using the transformed binary (after encoding and decoding) utilizing the same implementation as found in Step 1. The transformed mzML file is located under `output/new.mzML`
 - Step 6: Run MSFragger on transformed mzML file.
