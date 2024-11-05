@@ -2,8 +2,6 @@
 
 A competition set out to determine the best encoding/decoding methods for mass spectrometry data.
 
-## Introduction
-
 ## Overview
 Provided in this repository is a pipeline to easily allow you to test how a given encoding/decoding strategy affects the search results of an mzML file. Your code should only be contained within the `transform` directory under `encode.py` and `decode.py`. Feel free to utilize any Python libraries found on pip, but make sure to update the `requirements.txt` accordingly (if you choose to do so).
 
@@ -57,3 +55,6 @@ docker compose up --build
 > **Note:** The `--build` flag ensures the Docker container inside the `transform` directory is built before running the pipeline. Without this flag, the previous build may be used.
 
 The pipeline will take some time to run on first execution. Result files are located under the `results` directory.
+
+## Submitting Results
+> **Note:** Submission and validation is still under development. **Store your result zips for now.**
