@@ -39,6 +39,11 @@ Below is a high level overview of the steps found in the pipeline:
 - Step 9: Export results.
     - The results for this run, along with the code contained within `transform` directory, is written to a zip file with timestamp under the `results` directory. 
 
+## Important Notes
+1. The output dataframe needs to be kept at the same dimension, if you remove rows,  you need to put place holders (like a 0 or empty list).
+
+2. The resulting dataframe's column order matters, as the npy save file does not save column names, so please make sure your decoded dataframe has the same column order.
+
 ## Usage
 To run the encoding and testing pipeline locally, make sure to have [Docker](https://www.docker.com/products/docker-desktop/) and Git installed on your system.
 
